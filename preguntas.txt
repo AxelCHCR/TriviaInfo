@@ -1,15 +1,4 @@
-def menu():
-    print("""
-        TRIVIAINFO
-        1. Nuevo juego
-        2. Marcadores
-        3. Estadísticas
-        4. Salir
-        """)
-
-
-menu()
-{
+"{
     [0]: [("¿Cuál es el equivalente binario del número decimal 128?\na. 10000000\n b.10000001\n. c. 10000010\n d. 10000011\n", "a"),
           ("¿Cuál es el equivalente binario del número decimal 255?\na. 11111110\n b.11111111\n. c. 11111110\n d. 11111100\n", "b"),
           ("¿Cuál es el equivalente binario del número decimal 100? \na. 1100100\n b.1100101\n. c. 1100110\n d. 1100111\n", "a"),
@@ -45,4 +34,4 @@ menu()
           ("¿Cuál es el resultado de la división binaria de 11101 por 11010? \na. 00\nb. 11\nc. 10\nd. 01", "d"),
           ("¿Cuál es el resultado de la resta binaria de 11101 y 11010? \na. 00\nb. 11\nc. 10\nd. 01", "b"),
           ]
-}
+}"
