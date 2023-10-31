@@ -1,4 +1,53 @@
 import random as r
+def obtenerPreguntasPorCategoriaConRespuesta():
+    preguntas = cargarDatos("preguntas.dat")
+    for i in range(0, 7):
+        pregunta = r.randint(0, len(preguntas[i])-1)
+        print(preguntas[i][pregunta][0])
+        print("Respuesta: ", preguntas[i][pregunta][1])
+
+def obtenerPreguntaAleatoriaPorCategoria(categoria):
+    preguntas  = cargarDatos("preguntas.dat")
+    pregunta  = r.randint(0, len(preguntas[categoria])-1)
+    print(preguntas[categoria][pregunta][0])
+    print("Respuesta: ", preguntas[categoria][pregunta][1])
+def tablaPuntuaciones():
+    datosAciertos = cargarDatos("juegosDeUsuarios.dat")
+    datosFallos = cargarDatos("fallosPorJugador.dat")
+    for i, j in datosAciertos.items():
+        print(f"{i} acertó {j} preguntas y falló {datosFallos[i]}")
+        print("Promedio: ", (j/(j+datosFallos[i]))*100, "%")
+def estadisticasPorJugador(jugador):
+    datos = cargarDatos("juegosDeUsuarios.dat")
+    datosVictorias = cargarDatos("ganadores.dat")
+    print(f"Las estadísticas de {jugador} son: ")
+    try:
+        print(f"Cantidad de juegos: {datos[jugador]}")
+    except:
+        print("Este jugador aún no se encuentra registrado.")
+    try:
+        print(f"Cantidad de victorias: {datosVictorias[jugador]}")
+    except:
+        print(f"{jugador} aún no ha ganado ninguna partida.")
+def topJugadores():
+    datos = cargarDatos("juegosDeUsuarios.dat")
+    print("Los jugadores con más juegos son: ")
+    datosOrdenados = sorted(datos.items(), key=lambda x: x[1], reverse=True)
+    for i in range(0, len(datosOrdenados)):
+        print(f"{i+1}. {datosOrdenados[i][0]} Cantidad de juegos: {datosOrdenados[i][1]}")
+def topPreguntasFalladas():
+    datos = cargarDatos("preguntasFalladas.dat")
+    print("Las preguntas más falladas son: ")
+    datosOrdenados = sorted(datos.items(), key=lambda x: x[1], reverse=True)
+    for i in range(0, len(datosOrdenados)):   
+        print(f"{i+1}. {datosOrdenados[i][0]} Cantidad de fallos: {datosOrdenados[i][1]}")
+
+def addRegistroJugadasPorJugador(datos, nombre):
+    try:
+        datos[nombre] += 1
+    except:
+        datos[nombre] = 1
+    return datos
 def addPreguntasFalladas(pregunta, datos):
     try:
         datos[pregunta] += 1
@@ -10,7 +59,7 @@ def guardarPreguntaFallada(archivo, datos):
     archivo.write(str(datos))
     archivo.close()
 def escribirDatos(archivo, datos):
-    archivo = open(archivo, "a")
+    archivo = open(archivo, "w")
     archivo.write(str(datos))
     archivo.close()
 def sumarJuegoAJugador(jugador, datos):
@@ -49,7 +98,7 @@ def iniciarJuego():
     preguntasJugadas = []
     turno = 0
     preguntasPorJugador = 0
-    while contadorRondas < 5:
+    while contadorRondas < 30:
         if turno == cantJugadores:
             turno = 0
             preguntasPorJugador += 1
@@ -66,11 +115,18 @@ def iniciarJuego():
         if respuesta == preguntas[seccion][pregunta][1]:
             print("Respuesta correcta")
             datosJugadores[turno][2] += 1
+            datosPreguntasAcertadas = cargarDatos("preguntasAcertadas.dat")
+            addRegistroJugadasPorJugador(datosPreguntasAcertadas, datosJugadores[turno][0])
+            guardarPreguntaFallada("preguntasAcertadas.dat", datosPreguntasAcertadas)
+
         else:
             print("Respuesta incorrecta")
             falladas = cargarDatos("preguntasFalladas.dat")
             falladasCargadas = addPreguntasFalladas(preguntas[seccion][pregunta][0], falladas)
             guardarPreguntaFallada("preguntasFalladas.dat", falladasCargadas)
+            datosFallosPorJugador = cargarDatos("fallosPorJugador.dat")
+            addRegistroJugadasPorJugador(datosFallosPorJugador, datosJugadores[turno][0])
+            guardarPreguntaFallada("fallosPorJugador.dat", datosFallosPorJugador)
         turno += 1
     if tipoJuego:
         sumaEquipo1 = datosJugadores[0][2] + datosJugadores[1][2]
@@ -88,6 +144,9 @@ def iniciarJuego():
                 maximo = datosJugadores[i][2]
                 ganador = datosJugadores[i][0]
         print(f"¡{ganador} gana!")
+        ganadores = cargarDatos("ganadores.dat")
+        addRegistroJugadasPorJugador(ganadores, ganador)
+        guardarPreguntaFallada("ganadores.dat", ganadores)
     for i in range(0, cantJugadores):
         #haz que se muestre la cantidad de preguntas acertadas por cada jugador. Haz que se muestre el porcentaje
         print(f"{datosJugadores[i][0]} acertó {datosJugadores[i][2]} preguntas ({(datosJugadores[i][2]/preguntasPorJugador)*100}%)")
@@ -96,7 +155,7 @@ def iniciarJuego():
         datoActualizado = sumarJuegoAJugador(datosJugadores[i][1], datosCargados)
         escribirDatos("juegosDeUsuarios.dat", datoActualizado)
 
-    return contadorRondas
+    return 
 
 
 
@@ -109,20 +168,53 @@ def menu():
     print("""
         TRIVIAINFO
         1. Nuevo juego
-        2. Marcadores
-        3. Estadísticas
+        2. Consultas
+        3. Reportes
         4. Salir
         """)
     opcion = int(input("Ingrese una opción: "))
     if opcion == 1:
         iniciarJuego()
     elif opcion == 2:
-        pass
+        print("""
+        1. Fallos por pregunta
+        2. Juegos por jugador
+        3. Estadísticas por jugador
+        """)
+        opcion = int(input("Ingrese una opción: "))
+        if opcion == 1:
+            topPreguntasFalladas()
+        elif opcion == 2:
+            topJugadores()
+        elif opcion == 3:
+            nombre = input("Ingrese el nombre del jugador: ").lower()
+            estadisticasPorJugador(nombre)
+        menu()
     elif opcion == 3:
-        pass
+        print("""
+        1. Puntajes de jugadores
+        2. Preguntas de una categoría
+        3. Pregunta aleatoria
+            """)
+        opcion = int(input("Ingrese una opción: "))
+        if opcion == 1:
+            tablaPuntuaciones()
+        elif opcion == 2:
+            print("""Categorías: 
+                  1. Conversión de decimal a binario
+                  2. Conversión de decimal a octal
+                  3. Conversión de decimal a hexadecimal
+                  4. Conversión de binario a octal
+                  5. Conversión de binario a hexadecimal
+                  6. Conversión de binario a decimal
+                  7. Operaciones aritméticas""")
+            opcion = int(input("Ingrese una opción: "))-1
+            obtenerPreguntaAleatoriaPorCategoria(opcion)
+        elif opcion == 3:
+            obtenerPreguntasPorCategoriaConRespuesta()
+        menu()
     elif opcion == 4:
-        pass
-
-#menu()
-print(iniciarJuego())
+        print("Juego terminado. ")
+        exit()
+menu()
 
