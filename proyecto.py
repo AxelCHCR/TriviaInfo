@@ -1,6 +1,16 @@
 import random as r
-def escribirDatos(archivo, datos):
+def addPreguntasFalladas(pregunta, datos):
+    try:
+        datos[pregunta] += 1
+    except:
+        datos[pregunta] = 1
+    return datos
+def guardarPreguntaFallada(archivo, datos):
     archivo = open(archivo, "w")
+    archivo.write(str(datos))
+    archivo.close()
+def escribirDatos(archivo, datos):
+    archivo = open(archivo, "a")
     archivo.write(str(datos))
     archivo.close()
 def sumarJuegoAJugador(jugador, datos):
@@ -58,6 +68,9 @@ def iniciarJuego():
             datosJugadores[turno][2] += 1
         else:
             print("Respuesta incorrecta")
+            falladas = cargarDatos("preguntasFalladas.dat")
+            falladasCargadas = addPreguntasFalladas(preguntas[seccion][pregunta][0], falladas)
+            guardarPreguntaFallada("preguntasFalladas.dat", falladasCargadas)
         turno += 1
     if tipoJuego:
         sumaEquipo1 = datosJugadores[0][2] + datosJugadores[1][2]
